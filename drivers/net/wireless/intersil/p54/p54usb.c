@@ -940,12 +940,15 @@ static void p54u_load_firmware_cb(const struct firmware *firmware,
 	 * the "priv" context. Do not use it anymore!
 	 */
 	priv = NULL;
+
 	if (err) {
 		dev_err(&intf->dev, "failed to initialize device (%d)\n", err);
+
 		usb_lock_device(udev);
 		usb_driver_release_interface(&p54u_driver, intf);
 		usb_unlock_device(udev);
 	}
+
 	usb_put_intf(intf);
 }
 
@@ -966,6 +969,7 @@ static int p54u_load_firmware(struct ieee80211_hw *dev,
 
 	dev_info(&priv->udev->dev, "Loading firmware file %s\n",
 	       p54u_fwlist[i].fw);
+
 	usb_get_intf(intf);
 	err = request_firmware_nowait(THIS_MODULE, 1, p54u_fwlist[i].fw,
 				      device, GFP_KERNEL, priv,
@@ -1004,7 +1008,6 @@ static int p54u_probe(struct usb_interface *intf,
 	priv->intf = intf;
 	skb_queue_head_init(&priv->rx_queue);
 	init_usb_anchor(&priv->submitted);
-
 
 	/* really lazy and simple way of figuring out if we're a 3887 */
 	/* TODO: should just stick the identification in the device table */
